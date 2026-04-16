@@ -23,19 +23,16 @@ fn generate(writer: *std.Io.Writer, data: []const u8, base_name: []const u8) std
     , .{base_name});
 }
 
-pub fn main() !void {
-    var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
-    defer _ = debug_allocator.deinit();
-    const gpa = debug_allocator.allocator();
-
-    const args = try std.process.argsAlloc(gpa);
-    defer std.process.argsFree(gpa, args);
+pub fn main(init: std.process.Init) !void {
+    const gpa = init.gpa;
+    const io = init.io;
+    const args = try init.minimal.args.toSlice(init.arena.allocator());
 
     var buffer: [4096]u8 = undefined;
-    var stdout_writer = std.fs.File.stdout().writer(&buffer);
+    var stdout_writer = std.Io.File.stdout().writer(io, &buffer);
     const stdout = &stdout_writer.interface;
 
-    var stderr_writer = std.fs.File.stderr().writer(&.{});
+    var stderr_writer = std.Io.File.stderr().writer(io, &.{});
     const stderr = &stderr_writer.interface;
 
     if (args.len < 3 or (args.len - 1) % 2 != 0) {
@@ -56,7 +53,7 @@ pub fn main() !void {
         const file = args[i];
         const base_name = args[i + 1];
 
-        const data = try std.fs.cwd().readFileAlloc(gpa, file, std.math.maxInt(usize));
+        const data = try std.Io.Dir.cwd().readFileAlloc(io, file, gpa, .unlimited);
         defer gpa.free(data);
 
         try generate(stdout, data, base_name);
