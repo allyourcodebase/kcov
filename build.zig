@@ -56,35 +56,24 @@ pub fn build(b: *std.Build) void {
     bash_tracefd_cloexec.root_module.addCSourceFile(.{ .file = upstream.path("src/engines/bash-tracefd-cloexec.c") });
 
     const kcov_system_lib = b.addLibrary(.{
-        .linkage = .dynamic,
         .name = "kcov_system_lib",
         .root_module = b.createModule(.{
-            .root_source_file = b.addWriteFiles().add("empty.zig", ""),
             .target = target,
             .optimize = optimize,
+            .link_libc = true,
+            .link_libcpp = true,
         }),
     });
 
-    // TODO fix kcov_system_lib compiling a static executable
-    // const kcov_system_lib = b.addLibrary(.{
-    //     .linkage = .dynamic,
-    //     .name = "kcov_system_lib",
-    //     .root_module = b.createModule(.{
-    //         .target = target,
-    //         .optimize = optimize,
-    //         .link_libc = true,
-    //         .link_libcpp = true,
-    //     }),
-    // });
-    // kcov_system_lib.root_module.addIncludePath(upstream.path("src/include"));
-    // kcov_system_lib.root_module.addCSourceFiles(.{
-    //     .root = upstream.path("."),
-    //     .files = &.{
-    //         "src/engines/system-mode-binary-lib.cc",
-    //         "src/utils.cc",
-    //         "src/system-mode/registration.cc",
-    //     },
-    // });
+    kcov_system_lib.root_module.addIncludePath(upstream.path("src/include"));
+    kcov_system_lib.root_module.addCSourceFiles(.{
+        .root = upstream.path("."),
+        .files = &.{
+            "src/engines/system-mode-binary-lib.cc",
+            "src/utils.cc",
+            "src/system-mode/registration.cc",
+        },
+    });
 
     // TODO utilize C23 #embed
     const bin_to_c_source = b.addExecutable(.{
@@ -404,6 +393,7 @@ pub fn build(b: *std.Build) void {
 
     if (link_system_curl) {
         kcov.linkSystemLibrary("curl", .{});
+        kcov_system_lib.root_module.linkSystemLibrary("curl", .{});
         if (kcov_system_daemon) |system_daemon| system_daemon.root_module.linkSystemLibrary("curl", .{});
         line2addr.root_module.linkSystemLibrary("curl", .{});
     } else if (b.lazyDependency("curl", .{
@@ -424,6 +414,7 @@ pub fn build(b: *std.Build) void {
             // https://github.com/ziglang/zig/issues/20377
             const libCurl = curl_builder.artifact(curl_dependency, .lib);
             kcov.linkLibrary(libCurl);
+            kcov_system_lib.root_module.linkLibrary(libCurl);
             if (kcov_system_daemon) |system_daemon| system_daemon.root_module.linkLibrary(libCurl);
             line2addr.root_module.linkLibrary(libCurl);
         }
@@ -431,6 +422,7 @@ pub fn build(b: *std.Build) void {
 
     if (link_system_zlib) {
         kcov.linkSystemLibrary("z", .{});
+        kcov_system_lib.root_module.linkSystemLibrary("z", .{});
         if (kcov_system_daemon) |system_daemon| system_daemon.root_module.linkSystemLibrary("z", .{});
         line2addr.root_module.linkSystemLibrary("z", .{});
     } else if (b.lazyDependency("zlib", .{
@@ -438,6 +430,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     })) |zlib_dependency| {
         kcov.linkLibrary(zlib_dependency.artifact("z"));
+        kcov_system_lib.root_module.linkLibrary(zlib_dependency.artifact("z"));
         if (kcov_system_daemon) |system_daemon| system_daemon.root_module.linkLibrary(zlib_dependency.artifact("z"));
         line2addr.root_module.linkLibrary(zlib_dependency.artifact("z"));
     }
