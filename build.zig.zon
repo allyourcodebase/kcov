@@ -1,7 +1,7 @@
 .{
     .name = .kcov,
     .version = "43.0.0",
-    .minimum_zig_version = "0.16.0",
+    .minimum_zig_version = "0.17.0",
     .dependencies = .{
         .kcov = .{
             .url = "git+https://github.com/SimonKagstrom/kcov?ref=v43#a39874f938ce13f7a65f253120d1ec946b349ffe",
@@ -13,13 +13,13 @@
             .lazy = true,
         },
         .curl = .{
-            .url = "git+https://github.com/allyourcodebase/curl.git#ab30a38bc47c8ad83ec7016f4ae3af1958d76ac3",
-            .hash = "curl-8.18.0-mFDAWOf0AAAE2R408-AD3oi63paK_MBWcxkqR6zkNsmL",
+            .url = "git+https://github.com/allyourcodebase/curl.git#5184bb9ff29cb0878be7983734c6852602570ea5",
+            .hash = "curl-8.18.0-mFDAWJ34AADFSd4AEhTLroKwtVlgX9N-T9lU_2qW-VAf",
             .lazy = true,
         },
         .binutils = .{
-            .url = "git+https://github.com/allyourcodebase/binutils.git#0387e8f5fbe8e1ab72baf109e1e21e25b8d3c652",
-            .hash = "binutils-2.45.0-SsZUiIEeAwA6OOns06QGsRFqD13SRVbf71-udO9_oBbo",
+            .url = "git+https://github.com/allyourcodebase/binutils.git#36369b8157b962cc0ddb499280a88edfdd0eda63",
+            .hash = "binutils-2.45.0-SsZUiNEeAwCBfZdO2AJt-qhm3mc0xA4dmCZn7H5LMK1K",
             .lazy = true,
         },
         .elfutils = .{

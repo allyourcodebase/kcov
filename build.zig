@@ -347,11 +347,8 @@ pub fn build(b: *std.Build) void {
     }
 
     const run_kcov = b.addRunArtifact(kcov_exe);
+    run_kcov.addPassthruArgs();
     run_kcov.step.dependOn(b.getInstallStep());
-
-    if (b.args) |args| {
-        run_kcov.addArgs(args);
-    }
 
     const run_step = b.step("run", "Run kcov");
     run_step.dependOn(&run_kcov.step);
@@ -383,10 +380,7 @@ pub fn build(b: *std.Build) void {
     });
 
     const run_line2addr = b.addRunArtifact(kcov_exe);
-
-    if (b.args) |args| {
-        run_line2addr.addArgs(args);
-    }
+    run_line2addr.addPassthruArgs();
 
     const line2addr_step = b.step("line2addr", "Run line2addr");
     line2addr_step.dependOn(&run_line2addr.step);
